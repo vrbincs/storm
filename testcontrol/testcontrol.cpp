@@ -9,8 +9,10 @@ int main(int argc, char *argv[])
    
    if(upnpCtrl)
    {
-      while(true)
+      upnpCtrl->search("ssdp:all");
+      while(upnpCtrl->run())
       {
+         std::cout << "fdfs" << std::endl;
          usleep(100000);
       }
    }

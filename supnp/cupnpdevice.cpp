@@ -17,9 +17,9 @@ static int deviceCallback(Upnp_EventType eventType,
    return 0;
 }
 
-CUPnPDevice *CUPnPDevice::create(const std::string &descUrl,
-                               const std::string &host,
-                               int port)
+CUPnPDevice *CUPnPDevice::create(const std::string &desc,
+                                 const std::string &host,
+                                 int port)
 {
    if(upnpDevice == NULL)
    {
@@ -36,7 +36,14 @@ CUPnPDevice *CUPnPDevice::create(const std::string &descUrl,
          return NULL;
       }
       
-      upnpDevice = new CUPnPDevice(descUrl, UpnpGetServerIpAddress(), UpnpGetServerPort());
+      std::string descUrl = "http://";
+      descUrl += UpnpGetServerIpAddress();
+      descUrl += ":";
+      descUrl += std::to_string(UpnpGetServerPort());
+      descUrl += "/";
+      descUrl += desc;
+      
+      upnpDevice = new CUPnPDevice("uuid:3432-sdfsdfsdf-fd", UpnpGetServerIpAddress(), UpnpGetServerPort());
    }
    else
    {
@@ -47,20 +54,27 @@ CUPnPDevice *CUPnPDevice::create(const std::string &descUrl,
 }
 
 CUPnPDevice::CUPnPDevice(const std::string &descUrl, 
-                       const std::string &host,
-                       int port)
+                         const std::string &host,
+                         int port)
    : m_descUrl(descUrl),
      m_host(host),
      m_port(port)
 {
-   LOGGER_TRACE("New CUPnPDevice:'" << descUrl << "' is bind to the address:" << m_host << " at port:" << m_port);
+   LOGGER_TRACE("New CUPnPDevice:'" << m_descUrl << "' is bind to the address:" << m_host << " at port:" << m_port);
    
-   UpnpRegisterRootDevice(descUrl.c_str(),
-                          deviceCallback,
-                          NULL,
-                          &deviceHandle);
+   int err = UpnpRegisterRootDevice(m_descUrl.c_str(),
+                                    deviceCallback,
+                                    this,
+                                    &deviceHandle);
    
-   m_running = true;
+   if(err != UPNP_E_SUCCESS)
+   {
+      LOGGER_ERROR("Unable to register root device. err=" << err);
+   }
+   else
+   {
+      m_running = true;
+   }
 }
 
 CUPnPDevice::~CUPnPDevice()
@@ -81,7 +95,16 @@ bool CUPnPDevice::run()
 {
    if(m_running)
    {
-      // poll some events
+      int err = UpnpSendAdvertisement(deviceHandle, 1);
+      
+      if(err != UPNP_E_SUCCESS)
+      {
+         LOGGER_ERROR("Unable to send advertisement. err=" << err);
+      }
+      else
+      {
+         LOGGER_TRACE("ok");
+      }
    }
    
    return m_running;

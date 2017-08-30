@@ -7,7 +7,7 @@
 
 int main(int argc, char *argv[])
 {
-   CUPnPDevice *upnp = CUPnPDevice::create("UPNP::testdevice");
+   CUPnPDevice *upnp = CUPnPDevice::create("saso.html");
    
    if(upnp)
    {

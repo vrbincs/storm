@@ -7,9 +7,9 @@ class CUPnPDevice
 {
 public:
    virtual ~CUPnPDevice();
-   static CUPnPDevice *create(const std::string &descUrl = "GenCUPnPDevice",
+   static CUPnPDevice *create(const std::string &desc = "GenCUPnPDevice",
                              const std::string &host = "",
-                             int port = 0);
+                             int port = 90000);
 
    bool run();
 protected:
