@@ -16,11 +16,15 @@ protected:
    CUPnPDevice(const std::string &descUrl,
                const std::string &host,
                int port);
+
+   bool startService();
 private:
-   std::string m_descUrl;
+   std::string m_pathUrl;
    std::string m_host;
    int m_port;
    bool m_running;
+   
+   std::string createUrl(const std::string &path);
 };
 
 #endif // UPNPDEVICE_H

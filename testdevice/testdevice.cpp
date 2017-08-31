@@ -7,7 +7,7 @@
 
 int main(int argc, char *argv[])
 {
-   CUPnPDevice *upnp = CUPnPDevice::create("saso.html");
+   CUPnPDevice *upnp = CUPnPDevice::create("testDeviceRoot.xml");
    
    if(upnp)
    {

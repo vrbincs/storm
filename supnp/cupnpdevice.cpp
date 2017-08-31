@@ -17,7 +17,7 @@ static int deviceCallback(Upnp_EventType eventType,
    return 0;
 }
 
-CUPnPDevice *CUPnPDevice::create(const std::string &desc,
+CUPnPDevice *CUPnPDevice::create(const std::string &urlPath,
                                  const std::string &host,
                                  int port)
 {
@@ -36,14 +36,7 @@ CUPnPDevice *CUPnPDevice::create(const std::string &desc,
          return NULL;
       }
       
-      std::string descUrl = "http://";
-      descUrl += UpnpGetServerIpAddress();
-      descUrl += ":";
-      descUrl += std::to_string(UpnpGetServerPort());
-      descUrl += "/";
-      descUrl += desc;
-      
-      upnpDevice = new CUPnPDevice("uuid:3432-sdfsdfsdf-fd", UpnpGetServerIpAddress(), UpnpGetServerPort());
+      upnpDevice = new CUPnPDevice(urlPath, UpnpGetServerIpAddress(), UpnpGetServerPort());
    }
    else
    {
@@ -53,28 +46,14 @@ CUPnPDevice *CUPnPDevice::create(const std::string &desc,
    return upnpDevice;
 }
 
-CUPnPDevice::CUPnPDevice(const std::string &descUrl, 
+CUPnPDevice::CUPnPDevice(const std::string &pathUrl, 
                          const std::string &host,
                          int port)
-   : m_descUrl(descUrl),
+   : m_pathUrl(pathUrl),
      m_host(host),
      m_port(port)
 {
-   LOGGER_TRACE("New CUPnPDevice:'" << m_descUrl << "' is bind to the address:" << m_host << " at port:" << m_port);
-   
-   int err = UpnpRegisterRootDevice(m_descUrl.c_str(),
-                                    deviceCallback,
-                                    this,
-                                    &deviceHandle);
-   
-   if(err != UPNP_E_SUCCESS)
-   {
-      LOGGER_ERROR("Unable to register root device. err=" << err);
-   }
-   else
-   {
-      m_running = true;
-   }
+   m_running = startService();
 }
 
 CUPnPDevice::~CUPnPDevice()
@@ -108,5 +87,45 @@ bool CUPnPDevice::run()
    }
    
    return m_running;
+}
+
+bool CUPnPDevice::startService()
+{
+   std::string url = createUrl(m_pathUrl);
+   LOGGER_TRACE("New CUPnPDevice:'" << url.c_str() << "' is bind to the address:" << m_host << " at port:" << m_port << ", webserverEnabled=" << UpnpIsWebserverEnabled());
+   
+   // Start HTTP server first
+   int err = 0;
+   if((err = UpnpSetWebServerRootDir("./")) != UPNP_E_SUCCESS)
+   {
+      LOGGER_ERROR("Unable to set HTTP root directory. dir=" << m_pathUrl << ", err=" << err);
+      return false;
+   }
+   
+   if((err = UpnpRegisterRootDevice(url.c_str(),
+                                    deviceCallback,
+                                    this,
+                                    &deviceHandle)) != UPNP_E_SUCCESS)
+   {
+      LOGGER_ERROR("Unable to register root device. err=" << err);
+      return false;
+   }
+
+   return true;
+}
+
+std::string CUPnPDevice::createUrl(const std::string &path)
+{
+   std::string url;
+   url.reserve(256);
+   
+   url += "http://";
+   url += UpnpGetServerIpAddress();
+   url += ":";
+   url += std::to_string(UpnpGetServerPort());
+   url += "/";
+   url += path;
+   
+   return url;
 }
 
