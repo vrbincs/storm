@@ -48,12 +48,12 @@ CUPnPDevice *CUPnPDevice::create(const std::string &urlPath,
 
 CUPnPDevice::CUPnPDevice(const std::string &pathUrl, 
                          const std::string &host,
-                         int port)
+                         uint32_t port)
    : m_pathUrl(pathUrl),
      m_host(host),
      m_port(port)
 {
-   m_running = startService();
+   m_running = startServices();
 }
 
 CUPnPDevice::~CUPnPDevice()
@@ -89,7 +89,7 @@ bool CUPnPDevice::run()
    return m_running;
 }
 
-bool CUPnPDevice::startService()
+bool CUPnPDevice::startServices()
 {
    std::string url = createUrl(m_pathUrl);
    LOGGER_TRACE("New CUPnPDevice:'" << url.c_str() << "' is bind to the address:" << m_host << " at port:" << m_port << ", webserverEnabled=" << UpnpIsWebserverEnabled());
@@ -110,6 +110,8 @@ bool CUPnPDevice::startService()
       LOGGER_ERROR("Unable to register root device. err=" << err);
       return false;
    }
+   
+   
 
    return true;
 }

@@ -8,8 +8,8 @@ class CUPnPDevice
 public:
    virtual ~CUPnPDevice();
    static CUPnPDevice *create(const std::string &desc = "GenCUPnPDevice",
-                             const std::string &host = "",
-                             int port = 90000);
+                              const std::string &host = "",
+                              uint32_t port = 90000);
 
    bool run();
 protected:
@@ -17,11 +17,13 @@ protected:
                const std::string &host,
                int port);
 
-   bool startService();
+   bool startServices();
+   
+   virtual bool onAction(const CUPnPAction &action);
 private:
    std::string m_pathUrl;
    std::string m_host;
-   int m_port;
+   uint32_t m_port;
    bool m_running;
    
    std::string createUrl(const std::string &path);
