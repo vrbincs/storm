@@ -60,6 +60,10 @@ CUPnPCtrl *CUPnPCtrl::create(const std::string &host,
    return upnpControl;
 }
 
+CUPnPCtrl::CUPnPCtrl()
+{
+}
+
 CUPnPCtrl::CUPnPCtrl(const std::string &host,
                      int port)
    : m_host(host),
@@ -123,3 +127,8 @@ void CUPnPCtrl::search()
    }
 }
 
+bool CUPnPCtrl::registerDeviceService(const std::string &deviceType,
+                                      const std::string &deviceSCPD)
+{
+   return false;
+}

@@ -10,8 +10,8 @@ pkg_check_modules ( LIBUPNP REQUIRED libupnp )
 
 set ( SOURCES ${SOURCES} cupnpdevice.cpp 
                          cupnpctrl.cpp
-                         cupnpmediaserver.cpp
-                         cupnpaction.cpp
+                         cupnpdevicedesc.cpp
+                         cupnpactiondesc.cpp
                          mediaserverSCPD.cpp )
 
 add_library(storm SHARED ${SOURCES})
