@@ -40,7 +40,7 @@
          <argumentList>
             <argument>
                <name>ObjectID</name>
-               <direction>in</direction>
+               <directi on>in</direction>
                <relatedStateVariable>A_ARG_TYPE_ObjectID</relatedStateVariable>
             </argument>
             <argument>

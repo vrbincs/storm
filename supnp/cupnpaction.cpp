@@ -1,24 +1,24 @@
+#include "logger.h"
+
+#include "cupnpactionargumentdesc.h"
+#include "cupnpactiondesc.h"
 #include "cupnpaction.h"
 
-CUPnPAction::CUPnPAction()
-{
-}
-
-CUPnPAction::CUPnPAction(const std::string &actionName)
-   m_actionName(actionName)
-{
-}
-
-bool CUPnPAction::addArg(const std::string &argumentName,
-                         UPnPType type,
-                         bool isDirectionIn)
+CUPnPAction::CUPnPAction(const CUPnPActionDesc *actionDesc)
+   : m_upnpActionDesc(actionDesc)
 {
 }
 
 std::string CUPnPAction::getName() const
 {
+   if(m_upnpActionDesc)
+   {
+      return m_upnpActionDesc->getName();
+   }
+   else
+   {
+      LOGGER_WARN("Action description object is NULL.");
+      return std::string();
+   }
 }
 
-bool CUPnPAction::serialize(xml_node<> *xmlNode)
-{
-}

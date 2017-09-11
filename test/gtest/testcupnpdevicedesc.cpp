@@ -3,7 +3,12 @@
 #include <gtest/gtest.h>
 #include <rapidxml.hpp>
 
+#include <logger.h>
+
+#include <cupnpactionargumentdesc.h>
+#include <cupnpactiondesc.h>
 #include <cupnpdevicedesc.h>
+
 
 #define XSTR(x) #x
 #define STR(x) XSTR(x)
@@ -65,4 +70,19 @@ TEST_F(TestCUPnPDeviceDesc, TestDeserialization)
    
    CUPnPDeviceDesc upnpDesc("urn:schemas-upnp-org:device:MediaServer:1");
    EXPECT_TRUE(upnpDesc.deserialize(root_node));
+   
+   EXPECT_EQ(upnpDesc.getActionList().size(), 14);
+   
+   const CUPnPActionDesc *action0 = upnpDesc.findAction("GetSearchCapabilities");
+   ASSERT_TRUE(action0 != NULL);
+   const CUPnPActionDesc *action1 = upnpDesc.findAction("GetSortCapabilities");
+   ASSERT_TRUE(action1 != NULL);
+   const CUPnPActionDesc *action2 = upnpDesc.findAction("Browse");
+   ASSERT_TRUE(action2 != NULL);
+   const CUPnPActionDesc *action3 = upnpDesc.findAction("GetTransferProgress");
+   ASSERT_TRUE(action3 != NULL);
+   
+   ASSERT_TRUE(action2->findArg("ObjectID") != NULL);
+   EXPECT_FALSE(action2->findArg("ObjectID")->isOut());
+   EXPECT_TRUE(action2->findArg("Result")->isOut());
 }

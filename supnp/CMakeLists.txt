@@ -1,10 +1,10 @@
 cmake_minimum_required (VERSION 2.6)
-project ( storm )
+project ( supnp )
 
 include ( FindPkgConfig )
 
-set ( storm_VERSION_MAJOR 1 )
-set ( storm_VERSION_MINOR 0 )
+set ( supnp_VERSION_MAJOR 1 )
+set ( supnp_VERSION_MINOR 0 )
 
 pkg_check_modules ( LIBUPNP REQUIRED libupnp )
 
@@ -12,7 +12,9 @@ set ( SOURCES ${SOURCES} cupnpdevice.cpp
                          cupnpctrl.cpp
                          cupnpdevicedesc.cpp
                          cupnpactiondesc.cpp
-                         mediaserverSCPD.cpp )
+                         cupnpactionargumentdesc.cpp
+                         cupnpaction.cpp
+                         cupnpservice.cpp )
 
-add_library(storm SHARED ${SOURCES})
-target_link_libraries ( storm ${LIBUPNP_LIBRARIES} )
+add_library(supnp SHARED ${SOURCES})
+target_link_libraries ( supnp ${LIBUPNP_LIBRARIES} )

@@ -2,22 +2,24 @@
    #define CUPNPSERVICE_H
 
 #include <string>
-#include <deque>
+#include <map>
 
-class CUPnPAction;
+class CUPnPActionDesc;
 
 class CUPnPService
 {
 public:
-   CUPnPService(const std::string &serviceType);
+   CUPnPService(const std::string &type,
+                const std::string &id);
    
-   bool addAction(CUPnPAction *action);
-   std::string getServiceType() const;
+   bool addAction(CUPnPActionDesc *action);
    
-   
+   inline std::string getType() const { return m_type; }
+   inline std::string getId() const { return m_id; }
 private:
-   std::string m_serviceType;
-   std::map<std::string, CUPnPAction *> m_actionList;
+   std::string m_type;
+   std::string m_id;
+   std::map<std::string, CUPnPActionDesc *> m_actionList;
 };
 
 

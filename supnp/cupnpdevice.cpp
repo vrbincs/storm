@@ -6,7 +6,7 @@
 #include "logger.h"
 #include "cupnpdevice.h"
 
-static CUPnPDevice *upnpDevice = NULL;
+static CUPnPDevice *l_upnpDevice = NULL;
 static UpnpDevice_Handle deviceHandle;
 
 static int deviceCallback(Upnp_EventType eventType,
@@ -19,9 +19,10 @@ static int deviceCallback(Upnp_EventType eventType,
 
 CUPnPDevice *CUPnPDevice::create(const std::string &serviceDescPath,
                                  const std::string &host,
-                                 uint32_t port)
+                                 uint32_t port,
+                                 IUPnPDeviceDelegate *deviceDelegate)
 {
-   if(upnpDevice == NULL)
+   if(l_upnpDevice == NULL)
    {
       const char *host_c = NULL;
       if(!host.empty())
@@ -36,24 +37,27 @@ CUPnPDevice *CUPnPDevice::create(const std::string &serviceDescPath,
          return NULL;
       }
       
-      upnpDevice = new CUPnPDevice(serviceDescPath, 
-                                   UpnpGetServerIpAddress(),
-                                   UpnpGetServerPort());
+      l_upnpDevice = new CUPnPDevice(serviceDescPath, 
+                                     UpnpGetServerIpAddress(),
+                                     UpnpGetServerPort(),
+                                     deviceDelegate);
    }
    else
    {
       LOGGER_INFO("An instance of CUPnPDevice has already initialized the UPnP library.");
    }
    
-   return upnpDevice;
+   return l_upnpDevice;
 }
 
 CUPnPDevice::CUPnPDevice(const std::string &serviceDescPath, 
                          const std::string &host,
-                         uint32_t port)
+                         uint32_t port,
+                         IUPnPDeviceDelegate *deviceDelegate)
    : m_serviceDescPath(serviceDescPath),
      m_host(host),
-     m_port(port)
+     m_port(port),
+     m_deviceDelegate(deviceDelegate)
 {
    m_running = startServices();
 }
@@ -69,7 +73,7 @@ CUPnPDevice::~CUPnPDevice()
       LOGGER_WARN("UPnP is not active.");
    }
    
-   upnpDevice = NULL;
+   l_upnpDevice = NULL;
 }
 
 bool CUPnPDevice::run()
@@ -112,8 +116,6 @@ bool CUPnPDevice::startServices()
       LOGGER_ERROR("Unable to register root device. err=" << err);
       return false;
    }
-   
-   
 
    return true;
 }

@@ -20,7 +20,7 @@ add_executable ( teststorm testcupnpdevicedesc.cpp )
 target_link_libraries ( teststorm ${GTEST_LIBRARIES}
                                   -lgmock
                                   ${CMAKE_THREAD_LIBS_INIT}
-                                  storm )
+                                  supnp )
 
 include_directories ( ${GTEST_INCLUDE_DIRS}
                       ${GMOCK_INCLUDE_DIRS}

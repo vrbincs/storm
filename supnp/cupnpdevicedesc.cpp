@@ -1,37 +1,16 @@
+#include <string>
+#include <map>
+
 #include <rapidxml.hpp>
 
 #include "logger.h"
 
+#include "cupnpactionargumentdesc.h"
+#include "cupnpactiondesc.h"
 #include "cupnpdevicedesc.h"
 
-
-static CUPnPActionArgumentDesc *deserializeArgumentList(rapidxml::xml_node<> *xmlNode)
-{
-   return NULL;
-}
-
-static CUPnPActionDesc *deserializeAction(rapidxml::xml_node<> *xmlNode)
-{
-   std::string actionName;
-   
-   for (rapidxml::xml_node<> *childNode = xmlNode->first_node(); childNode; childNode = childNode->next_sibling())
-   {
-      std::string tagName = childNode->name();
-      
-      if(tagName == "name")
-      {
-         actionName = childNode->value();
-      }
-      else if(tagName == "argumentList")
-      {
-         deserializeArgumentList(childNode);
-      }
-   }
-   
-   return NULL;
-}
-
-static bool deserializeActionList(rapidxml::xml_node<> *xmlNode, std::queue<CUPnPActionDesc *> &deviceDesc)
+static bool deserializeActions(rapidxml::xml_node<> *xmlNode, 
+                               std::map<std::string, CUPnPActionDesc *> &actionList)
 {
    for (rapidxml::xml_node<> *childNode = xmlNode->first_node(); childNode; childNode = childNode->next_sibling())
    {
@@ -39,15 +18,16 @@ static bool deserializeActionList(rapidxml::xml_node<> *xmlNode, std::queue<CUPn
       
       if(tagName == "action")
       {
-         CUPnPActionDesc *action = deserializeAction(childNode);
+         CUPnPActionDesc *action = CUPnPActionDesc::create();
          
-         if(action)
+         if(action->deserialize(childNode))
          {
-            deviceDesc.push(action);
+            actionList.insert(std::pair<std::string, CUPnPActionDesc *>(action->getName(), action));
          }
          else
          {
-            LOGGER_ERROR("Unable to create action.");
+            CUPnPActionDesc::destroy(action);
+            LOGGER_ERROR("Unable to deserialize action.");
             return false;
          }
       }
@@ -74,8 +54,7 @@ CUPnPDeviceDesc::~CUPnPDeviceDesc()
 
 bool CUPnPDeviceDesc::addActionDesc(CUPnPActionDesc *serviceDesc)
 {
-   m_actionList.push(serviceDesc);
-   return true;
+   return false;
 }
 
 bool CUPnPDeviceDesc::deserialize(rapidxml::xml_node<> *xmlNode)
@@ -93,7 +72,7 @@ bool CUPnPDeviceDesc::deserialize(rapidxml::xml_node<> *xmlNode)
             }
             else if(tagName == "actionList")
             {
-               deserializeActionList(childNode, m_actionList);
+               deserializeActions(childNode, m_actionList);
             }
             else if(tagName == "serviceStateTable")
             {
@@ -113,4 +92,33 @@ bool CUPnPDeviceDesc::deserialize(rapidxml::xml_node<> *xmlNode)
    }
    
    return false;
+}
+
+const CUPnPActionDesc *CUPnPDeviceDesc::findAction(const std::string &actionName) const
+{
+   auto action = m_actionList.find(actionName);
+   
+   if(action == m_actionList.end())
+   {
+      return NULL;
+   }
+   else
+   {
+      return action->second;
+   }
+}
+
+std::vector<CUPnPActionDesc *> CUPnPDeviceDesc::getActionList() const
+{
+   std::vector<CUPnPActionDesc *> t_actionList;
+   
+   t_actionList.reserve(m_actionList.size());
+   auto it = m_actionList.begin();
+   
+   for(;it != m_actionList.end(); it++)
+   {
+      t_actionList.push_back(it->second);
+   }
+   
+   return t_actionList;
 }

@@ -12,4 +12,4 @@ set ( SOURCES ${SOURCES} testcontrol.cpp )
 
 add_executable( storm_testcontrol ${SOURCES} )
 
-target_link_libraries ( storm_testcontrol storm )
+target_link_libraries ( storm_testcontrol supnp )

@@ -1,7 +1,11 @@
 #ifndef CUPNPACTION_H
    #define CUPNPACTION_H
 
-class xmlNode;
+#include <string>
+#include <rapidxml.hpp>
+
+class CUPnPActionDesc;
+class CValue;
 
 enum UPnPType
 {
@@ -11,20 +15,14 @@ enum UPnPType
 
 class CUPnPAction
 {
-public:
-   CUPnPAction(const std::string &actionName);
-   bool addArg(const std::string &argumentName,
-               UPnPType type,
-               bool isDirectionIn);
-   bool addArg(const CUPnPArg &arg);
+protected:
+   CUPnPAction(const CUPnPActionDesc *);
 
    std::string getName() const;
-   bool serialize(xml_node<> *xmlNode);
-protected:
-   CUPnPAction();
+   CValue *getValue() const;
 private:
-   std::string m_actionName;
-   std::map<std::string, CUPnPArg *> m_args;
+   const CUPnPActionDesc *m_upnpActionDesc;
+   CValue *m_value;
 };
 
 #endif // CUPNPACTION_H
