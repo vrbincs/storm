@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root xmlns="urn:schemas-upnp-org:device-1-0">
+   <specVersion>
+      <major>1</major>
+      <minor>0</minor>
+   </specVersion>
+   <device>
+      <deviceType>urn:schemas-upnp-org:device:MediaServer:1</deviceType>
+      <friendlyName>STORM Media server</friendlyName>
+      <manufacturer>Sasho Vrbinc</manufacturer>
+      <manufacturerURL>http://www.sasho.com/</manufacturerURL>
+      <modelDescription />
+      <UDN>uuid:7e931908-b67d-4f62-a8fb-6ea0c54c6d9d</UDN>
+      <serviceList>
+         <service>
+            <serviceType>urn:schemas-upnp-org:service:ContentDirectory:1</serviceType>
+            <serviceId>urn:upnp-org:serviceId:ContentDirectory</serviceId>
+            <controlURL />
+            <eventSubURL />
+            <SCPDURL>SampleSCPD.xml</SCPDURL>
+         </service>
+      </serviceList>
+   </device>
+</root>
