@@ -13,11 +13,14 @@ public:
    
    inline rapidxml::xml_attribute<> *findAttribute(const std::string &name)
    {
-      for (rapidxml::xml_attribute<> *attr = m_node->first_attribute(); attr; attr = attr->next_attribute())
+      if(m_node)
       {
-         if(attr->name() == name)
+         for (rapidxml::xml_attribute<> *attr = m_node->first_attribute(); attr; attr = attr->next_attribute())
          {
-            return attr;
+            if(attr->name() == name)
+            {
+               return attr;
+            }
          }
       }
       
@@ -35,6 +38,39 @@ public:
       }
       
       return str_t;
+   }
+   
+   inline std::string getNodeValue()
+   {
+      if(m_node)
+      {
+         return m_node->name();
+      }
+      
+      return std::string();
+   }
+   
+   inline rapidxml::xml_node<> *next()
+   {
+      if(m_node)
+      {
+         m_node = m_node->first_node();
+      }
+      return m_node;
+   }
+   
+   inline rapidxml::xml_node<> *nextSibling()
+   {
+      if(m_node)
+      {
+         m_node = m_node->next_sibling();
+      }
+      return m_node;
+   }
+   
+   inline bool isValid() const
+   {
+      return m_node;
    }
 private:
    rapidxml::xml_node<> *m_node;

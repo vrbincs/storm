@@ -3,8 +3,7 @@
 
 #include <logger.h>
 #include <iupnpdevicedelegate.h>
-#include <cupnpactionargumentdesc.h>
-#include <cupnpactiondesc.h>
+#include <cupnpservice.h>
 #include <crapidxmlhelper.h>
 
 #include "cmediaserverdelegate.h"
@@ -19,7 +18,7 @@
 //#define RESOURCE_MEDIA_SERVER_ROOT STR(RESOURCE_PATH)"/resources/mediaServerRoot.xml"
 
 
-static std::map<std::string, CUPnPActionDesc *> l_serviceList;
+static std::map<std::string, CUPnPService *> l_serviceList;
 
 CMediaServerDelegate::CMediaServerDelegate(const std::string &uuid,
                                            const std::string &friendlyName,
@@ -50,16 +49,16 @@ bool CMediaServerDelegate::onAction(const CUPnPAction &action)
    return false;
 }
 
-std::map<std::string, CUPnPActionDesc *> CMediaServerDelegate::getServiceList() const
+std::map<std::string, CUPnPService *> CMediaServerDelegate::getServiceList() const
 {
    return l_serviceList;
 }
 
-bool CMediaServerDelegate::addService(CUPnPActionDesc *service)
+bool CMediaServerDelegate::addService(CUPnPService *service)
 {
-   if(l_serviceList.find(service->getName()) == l_serviceList.end())
+   if(l_serviceList.find(service->getType()) == l_serviceList.end())
    {
-      l_serviceList.insert(std::pair<std::string, CUPnPActionDesc *>(service->getName(), service));
+      l_serviceList.insert(std::pair<std::string, CUPnPService *>(service->getType(), service));
       return true;
    }
    
@@ -86,37 +85,29 @@ bool CMediaServerDelegate::registerService(const std::string &type,
    
    if(loadFile(descrXmlPath, xmlContent))
    {
-      rapidxml::xml_document<> deviceDescXmlDoc;
-      rapidxml::xml_node<> *root_node = NULL;
-      
       try
       {
+         rapidxml::xml_document<> deviceDescXmlDoc;
+         
          deviceDescXmlDoc.parse<0>(&xmlContent[0]);
-         root_node = deviceDescXmlDoc.first_node("scpd");
+         rapidxml::xml_node<> *root_node = deviceDescXmlDoc.first_node("scpd");
          
-         CRapidXmlHelper xmlHelper(root_node);
+         CUPnPService *service = CUPnPService::create();
+         service->setType(type);
          
-         if(xmlHelper.getAttributeValue("xmlns") == "urn:schemas-upnp-org:service-1-0")
-         {
-            
-         }
-         else
-         {
-            LOGGER_ERROR("Invalid XML structure.");
-         }
+         return service->deserialize(root_node);
       }
       catch(const rapidxml::parse_error &err)
       {
          std::cout << "XML parse error. what='" << err.what() << "'" << std::endl;
       }
-      
-      return true;
    }
    else
    {
       LOGGER_INFO("Error reading file. descrXmlPath=" << descrXmlPath);
-      return false;
    }
+   
+   return false;
 }
 
 bool CMediaServerDelegate::loadFile(const std::string &filePath,

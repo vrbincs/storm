@@ -10,6 +10,7 @@
 #include <cupnpaction.h>
 #include <cupnpctrl.h>
 #include <cupnpdevice.h>
+#include <cupnpservice.h>
 
 
 #endif // SUPNP_H

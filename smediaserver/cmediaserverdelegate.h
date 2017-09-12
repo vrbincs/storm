@@ -13,10 +13,10 @@ public:
 
    ~CMediaServerDelegate();
 protected:
-   bool onAction(const CUPnPAction &action);
-   std::map<std::string, CUPnPActionDesc *> getServiceList() const;
+   bool onAction(const CUPnPAction &action) override;
+   std::map<std::string, CUPnPService *> getServiceList() const override;
    
-   bool addService(CUPnPActionDesc *service);
+   bool addService(CUPnPService *service);
    bool registerService(const std::string &type,
                         const std::string &descrXmlPath);
 

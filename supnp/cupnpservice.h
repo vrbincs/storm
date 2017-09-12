@@ -4,21 +4,33 @@
 #include <string>
 #include <map>
 
+#include <rapidxml.hpp>
+
 class CUPnPActionDesc;
 
 class CUPnPService
 {
 public:
-   CUPnPService(const std::string &type,
-                const std::string &id);
+   CUPnPService(const std::string &type = "",
+                int verMajor = 1,
+                int verMinor = 0);
+   virtual ~CUPnPService() {}
    
-   bool addAction(CUPnPActionDesc *action);
+   inline void setType(const std::string &type) { m_type = type; }
    
    inline std::string getType() const { return m_type; }
-   inline std::string getId() const { return m_id; }
+   inline int getVersionMajor() const { return m_verMajor; }
+   inline int getVersionMinor() const { return m_verMinor; }
+   
+   bool addAction(CUPnPActionDesc *action);
+   bool deserialize(rapidxml::xml_node<> *xmlNode);
+   
+   static CUPnPService *create();
 private:
    std::string m_type;
-   std::string m_id;
+   int m_verMajor;
+   int m_verMinor;
+   
    std::map<std::string, CUPnPActionDesc *> m_actionList;
 };
 
