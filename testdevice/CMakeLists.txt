@@ -1,15 +1,15 @@
 cmake_minimum_required (VERSION 2.6)
-project ( storm_testdevice )
+project ( supnp_testdevice )
 
 include ( FindPkgConfig )
 
-set ( storm_testdevice_VERSION_MAJOR 1 )
-set ( storm_testdevice_VERSION_MINOR 0 )
+set ( supnp_testdevice_VERSION_MAJOR 1 )
+set ( supnp_testdevice_VERSION_MINOR 0 )
 
-include_directories ( ${storm_SOURCE_DIR} )
+include_directories ( ${supnp_SOURCE_DIR} )
  
 set ( SOURCES ${SOURCES} testdevice.cpp )
 
-add_executable( storm_testdevice ${SOURCES} )
+add_executable( supnp_testdevice ${SOURCES} )
 
-target_link_libraries ( storm_testdevice supnp )
+target_link_libraries ( supnp_testdevice supnp )

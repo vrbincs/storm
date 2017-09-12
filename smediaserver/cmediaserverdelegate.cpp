@@ -88,7 +88,6 @@ bool CMediaServerDelegate::registerService(const std::string &type,
    {
       rapidxml::xml_document<> deviceDescXmlDoc;
       rapidxml::xml_node<> *root_node = NULL;
-      rapidxml::xml_attribute<> *attribute = NULL;
       
       try
       {
@@ -97,7 +96,7 @@ bool CMediaServerDelegate::registerService(const std::string &type,
          
          CRapidXmlHelper xmlHelper(root_node);
          
-         if((attribute = xmlHelper.find("xmlns")) && attribute.value("urn:schemas-upnp-org:service-1-0"))
+         if(xmlHelper.getAttributeValue("xmlns") == "urn:schemas-upnp-org:service-1-0")
          {
             
          }
@@ -109,8 +108,8 @@ bool CMediaServerDelegate::registerService(const std::string &type,
       catch(const rapidxml::parse_error &err)
       {
          std::cout << "XML parse error. what='" << err.what() << "'" << std::endl;
-         ASSERT_TRUE(false);
       }
+      
       return true;
    }
    else
