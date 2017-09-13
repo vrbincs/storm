@@ -5,6 +5,7 @@
 
 #include "logger.h"
 #include "cupnpdevice.h"
+#include "crapidxmlhelper.h"
 
 static CUPnPDevice *l_upnpDevice = NULL;
 static UpnpDevice_Handle deviceHandle;
@@ -97,6 +98,9 @@ bool CUPnPDevice::run()
 
 bool CUPnPDevice::startServices()
 {
+   // create descriptionXML
+   createDescriptionXml();
+   
    std::string url = createUrl(m_serviceDescPath);
    LOGGER_TRACE("New CUPnPDevice:'" << url.c_str() << "' is bind to the address:" << m_host << " at port:" << m_port << ", webserverEnabled=" << UpnpIsWebserverEnabled());
    
@@ -108,10 +112,13 @@ bool CUPnPDevice::startServices()
       return false;
    }
    
-   if((err = UpnpRegisterRootDevice(url.c_str(),
-                                    deviceCallback,
-                                    this,
-                                    &deviceHandle)) != UPNP_E_SUCCESS)
+   if((err = UpnpRegisterRootDevice2(UPNPREG_BUF_DESC,
+                                     m_descriptionXml.c_str(),
+                                     m_descriptionXml.size(),
+                                     0,
+                                     deviceCallback,
+                                     this,
+                                     &deviceHandle)) != UPNP_E_SUCCESS)
    {
       LOGGER_ERROR("Unable to register root device. err=" << err);
       return false;
@@ -135,3 +142,52 @@ std::string CUPnPDevice::createUrl(const std::string &path)
    return url;
 }
 
+void CUPnPDevice::createDescriptionXml()
+{
+   try
+   {
+      CRapidXmlHelper xmlHelper;
+      rapidxml::xml_node<> *node = NULL;
+      rapidxml::xml_node<> *nodeChild1 = NULL;
+      
+      node = xmlHelper.createNode("root");
+      xmlHelper.appendAttribute("xmlns", "urn:schemas-upnp-org:device-1-0", node);
+      xmlHelper.appendNode(node);
+      
+      // Add specVersion
+      node = xmlHelper.createNode("specVersion");
+      nodeChild1 = xmlHelper.createNode("major", "0");
+      xmlHelper.appendNode(node, nodeChild1);
+      nodeChild1 = xmlHelper.createNode("minor", "1");
+      xmlHelper.appendNode(node, nodeChild1);
+      xmlHelper.appendNode(node);
+      
+      // Add device
+      node = xmlHelper.createNode("device");
+      
+      
+      /*
+       * <deviceType>urn:schemas-upnp-org:device:MediaServer:1</deviceType>
+      <friendlyName>STORM Media server</friendlyName>
+      <manufacturer>Sasho Vrbinc</manufacturer>
+      <manufacturerURL>http://www.sasho.com/</manufacturerURL>
+      <modelDescription />
+      <UDN>uuid:7e931908-b67d-4f62-a8fb-6ea0c54c6d9d</UDN>
+      <serviceList>
+         <service>
+            <serviceType>urn:schemas-upnp-org:service:ContentDirectory:1</serviceType>
+            <serviceId>urn:upnp-org:serviceId:ContentDirectory</serviceId>
+            <controlURL />
+            <eventSubURL />
+            <SCPDURL>SampleSCPD.xml</SCPDURL>
+         </service>
+      </serviceList>
+       */
+      
+      std::cout << xmlHelper.toString();
+      //LOGGER_INFO(document);
+   }catch(const std::bad_alloc &e)
+   {
+      LOGGER_INFO("ERROR");
+   }
+}

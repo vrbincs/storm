@@ -38,6 +38,13 @@ bool CUPnPService::deserialize(rapidxml::xml_node<> *xmlNode)
       {
          if(xmlHelper.getNodeValue() == "specVersion")
          {
+            CRapidXmlHelper xmlHelperVersion(xmlHelper);
+            
+            xmlHelperVersion.next();
+            
+            m_verMajor = xmlHelperVersion.getNodeValue("major").toInt32();
+            m_verMinor = xmlHelperVersion.getNodeValue("minor").toInt32();
+            
             // parse version
             LOGGER_INFO("parsing specVersion");
          }

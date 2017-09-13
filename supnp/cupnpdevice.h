@@ -31,7 +31,10 @@ private:
    bool m_running;
    IUPnPDeviceDelegate *m_deviceDelegate;
    
+   std::string m_descriptionXml;
    std::string createUrl(const std::string &path);
+   
+   void createDescriptionXml();
 };
 
 #endif // UPNPDEVICE_H

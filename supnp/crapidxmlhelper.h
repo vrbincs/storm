@@ -2,13 +2,36 @@
    #define CRAPIDXMLHELPER_H
 
 #include <rapidxml.hpp>
+#include <rapidxml_print.hpp>
+
+#include <cstring.h>
 
 class CRapidXmlHelper
 {
 public:
-   CRapidXmlHelper(rapidxml::xml_node<> *node)
-      : m_node(node)
+   CRapidXmlHelper()
+      :  m_document(NULL),
+         m_node(NULL)
    {
+      m_document = new rapidxml::xml_document<>();
+      
+      rapidxml::xml_node<> *decl = m_document->allocate_node(rapidxml::node_declaration);
+      
+      appendAttribute("version", "1.0", decl);
+      appendAttribute("encoding", "UTF-8", decl);
+      
+      m_document->append_node(decl);
+   }
+   
+   CRapidXmlHelper(rapidxml::xml_node<> *node)
+      : m_document(NULL),
+        m_node(node)
+   {
+   }
+   
+   virtual ~CRapidXmlHelper()
+   {
+      delete m_document;
    }
    
    inline rapidxml::xml_attribute<> *findAttribute(const std::string &name)
@@ -72,7 +95,55 @@ public:
    {
       return m_node;
    }
+   
+   inline CString getNodeValue(const std::string &nodeName)
+   {
+      return CString(m_node->value());
+   }
+   
+   inline void appendAttribute(const char *name,
+                               const char *value,
+                               rapidxml::xml_node<> *node)
+   {
+      if(node && m_document)
+      {
+         node->append_attribute(m_document->allocate_attribute(name, value));
+      }
+   }
+   
+   inline rapidxml::xml_node<> *createNode(const char *name, const char *value = NULL)
+   {
+      if(m_document)
+      {
+         return m_document->allocate_node(rapidxml::node_element, name, value);
+      }
+      
+      return NULL;
+   }
+   
+   inline void appendNode(rapidxml::xml_node<> *node)
+   {
+      m_document->append_node(node);
+   }
+   
+   inline void appendNode(rapidxml::xml_node<> *parent, rapidxml::xml_node<> *child)
+   {
+      parent->append_node(child);
+   }
+   
+   inline std::string toString() const
+   {
+      std::string xml_as_string;
+      
+      if(m_document)
+      {
+         rapidxml::print(std::back_inserter(xml_as_string), *m_document);
+      }
+      
+      return xml_as_string;
+   }
 private:
+   rapidxml::xml_document<> *m_document;
    rapidxml::xml_node<> *m_node;
 };
 
