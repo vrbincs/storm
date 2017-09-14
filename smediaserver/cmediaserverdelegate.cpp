@@ -14,6 +14,7 @@
 #define UPNP_MEDIA_SERVER_DEVICE_TYPE "urn:schemas-upnp-org:device:MediaServer:1"
 
 #define UPNP_MEDIA_SERVER_SERVICE_CDS "urn:schemas-upnp-org:service:ContentDirectory:1"
+#define UPNP_MEDIA_SERVER_SERVICE_ID  "urn:upnp-org:serviceId:ContentDirectory"
 #define RESOURCE_MEDIA_SERVER_CDS     STR(RESOURCE_PATH)"/resources/mediaServerCDS.xml"
 //#define RESOURCE_MEDIA_SERVER_ROOT STR(RESOURCE_PATH)"/resources/mediaServerRoot.xml"
 
@@ -35,13 +36,17 @@ CMediaServerDelegate::CMediaServerDelegate(const std::string &uuid,
 CMediaServerDelegate::~CMediaServerDelegate()
 {
    auto service_it = l_serviceList.begin();
-   
    for(;service_it != l_serviceList.end(); service_it++)
    {
       delete service_it->second;
    }
-   
    l_serviceList.clear();
+   
+   auto scpd_it = m_serviceSCPD.begin();
+   for(; scpd_it != m_serviceSCPD.end(); scpd_it++)
+   {
+      delete scpd_it->second;
+   }
 }
 
 const char *CMediaServerDelegate::getDeviceType() const
@@ -98,27 +103,31 @@ void CMediaServerDelegate::registerServices()
    // AVTransport:1.0 (optional)
    
    registerService(UPNP_MEDIA_SERVER_SERVICE_CDS,
+                   UPNP_MEDIA_SERVER_SERVICE_ID,
                    RESOURCE_MEDIA_SERVER_CDS);
    //registerConnectionManager();
    //AVTransport();
 }
 
 bool CMediaServerDelegate::registerService(const std::string &type,
+                                           const std::string &id,
                                            const std::string &descrXmlPath)
 {
-   std::string xmlContent;
+   std::string *xmlContent = new std::string;
    
-   if(loadFile(descrXmlPath, xmlContent))
+   if(loadFile(descrXmlPath, *xmlContent))
    {
+      m_serviceSCPD[type] = xmlContent;
       try
       {
          rapidxml::xml_document<> deviceDescXmlDoc;
          
-         deviceDescXmlDoc.parse<0>(&xmlContent[0]);
+         deviceDescXmlDoc.parse<0>(&(*xmlContent)[0]);
          rapidxml::xml_node<> *root_node = deviceDescXmlDoc.first_node("scpd");
          
          CUPnPService *service = CUPnPService::create();
          service->setType(type);
+         service->setId(id);
          
          if(service->deserialize(root_node))
          {

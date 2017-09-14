@@ -188,15 +188,15 @@ void CUPnPDevice::createDescriptionXml()
       for(; serviceListIt != serviceList.end(); serviceListIt++)
       {
          nodeChild2 = xmlHelper.createNode("service");
-         nodeChild3 = xmlHelper.createNode("serviceType", serviceListIt->second->getType().data());
+         nodeChild3 = xmlHelper.createNode("serviceType", serviceListIt->second->getType());
          xmlHelper.appendNode(nodeChild2, nodeChild3);
-         nodeChild3 = xmlHelper.createNode("serviceId", serviceListIt->second->getType().data());
+         nodeChild3 = xmlHelper.createNode("serviceId", serviceListIt->second->getId());
          xmlHelper.appendNode(nodeChild2, nodeChild3);
-         nodeChild3 = xmlHelper.createNode("controlURL", serviceListIt->second->getType().data());
+         nodeChild3 = xmlHelper.createNode("controlURL", serviceListIt->second->getType());
          xmlHelper.appendNode(nodeChild2, nodeChild3);
-         nodeChild3 = xmlHelper.createNode("eventSubURL", serviceListIt->second->getType().data());
+         nodeChild3 = xmlHelper.createNode("eventSubURL", serviceListIt->second->getType());
          xmlHelper.appendNode(nodeChild2, nodeChild3);
-         nodeChild3 = xmlHelper.createNode("SCPDURL", serviceListIt->second->getType().data());
+         nodeChild3 = xmlHelper.createNode("SCPDURL", serviceListIt->second->getType());
          xmlHelper.appendNode(nodeChild2, nodeChild3);
          
          xmlHelper.appendNode(nodeChild1, nodeChild2);

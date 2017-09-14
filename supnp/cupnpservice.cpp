@@ -6,9 +6,11 @@
 #include "crapidxmlhelper.h"
 
 CUPnPService::CUPnPService(const std::string &type,
+                           const std::string &id,
                            int verMajor,
                            int verMinor)
    : m_type(type),
+     m_id(id),
      m_verMajor(verMajor),
      m_verMinor(verMinor)
 {
