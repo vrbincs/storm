@@ -2,6 +2,7 @@
    #define CMEDIASERVERDELEGATE_H
 
 #include <vector>
+#include <iupnpdevicedelegate.h>
 
 class CMediaServerDelegate : public IUPnPDeviceDelegate
 {
@@ -12,6 +13,12 @@ public:
                         const std::string &manufacturerUrl);
 
    ~CMediaServerDelegate();
+   
+   const char *getDeviceType() const override;
+   const char *getFriendlyName() const override;
+   const char *getManufacturer() const override;
+   const char *getManufacturerUrl() const override;
+   const char *getUuid() const override;
 protected:
    bool onAction(const CUPnPAction &action) override;
    std::map<std::string, CUPnPService *> getServiceList() const override;

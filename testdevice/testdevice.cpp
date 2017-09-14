@@ -4,10 +4,16 @@
 
 #include <logger.h>
 #include <cupnpdevice.h>
+#include <cmediaserverdelegate.h>
 
 int main(int argc, char *argv[])
 {
-   CUPnPDevice *upnp = CUPnPDevice::create("testDeviceRoot.xml");
+   CMediaServerDelegate mediaServerDelegate("uuid:1a2c717b-2f9a-4ff6-9f6c-8ad115508b99",
+                                            "TestDeviceSaso",
+                                            "Sasho Vrbinc",
+                                            "https://github.com/vrbincs/");
+   
+   CUPnPDevice *upnp = CUPnPDevice::create(&mediaServerDelegate, "/");
    
    if(upnp)
    {

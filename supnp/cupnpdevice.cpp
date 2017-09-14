@@ -6,6 +6,8 @@
 #include "logger.h"
 #include "cupnpdevice.h"
 #include "crapidxmlhelper.h"
+#include "iupnpdevicedelegate.h"
+#include "cupnpservice.h"
 
 static CUPnPDevice *l_upnpDevice = NULL;
 static UpnpDevice_Handle deviceHandle;
@@ -18,10 +20,10 @@ static int deviceCallback(Upnp_EventType eventType,
    return 0;
 }
 
-CUPnPDevice *CUPnPDevice::create(const std::string &serviceDescPath,
+CUPnPDevice *CUPnPDevice::create(IUPnPDeviceDelegate *deviceDelegate,
+                                 const std::string &serviceDescPath,
                                  const std::string &host,
-                                 uint32_t port,
-                                 IUPnPDeviceDelegate *deviceDelegate)
+                                 uint32_t port)
 {
    if(l_upnpDevice == NULL)
    {
@@ -149,6 +151,8 @@ void CUPnPDevice::createDescriptionXml()
       CRapidXmlHelper xmlHelper;
       rapidxml::xml_node<> *node = NULL;
       rapidxml::xml_node<> *nodeChild1 = NULL;
+      rapidxml::xml_node<> *nodeChild2 = NULL;
+      rapidxml::xml_node<> *nodeChild3 = NULL;
       
       node = xmlHelper.createNode("root");
       xmlHelper.appendAttribute("xmlns", "urn:schemas-upnp-org:device-1-0", node);
@@ -164,7 +168,41 @@ void CUPnPDevice::createDescriptionXml()
       
       // Add device
       node = xmlHelper.createNode("device");
+      nodeChild1 = xmlHelper.createNode("deviceType", m_deviceDelegate->getDeviceType());
+      xmlHelper.appendNode(node, nodeChild1);
+      nodeChild1 = xmlHelper.createNode("friendlyName", m_deviceDelegate->getFriendlyName());
+      xmlHelper.appendNode(node, nodeChild1);
+      nodeChild1 = xmlHelper.createNode("manufacturer", m_deviceDelegate->getManufacturer());
+      xmlHelper.appendNode(node, nodeChild1);
+      nodeChild1 = xmlHelper.createNode("manufacturerURL", m_deviceDelegate->getManufacturerUrl());
+      xmlHelper.appendNode(node, nodeChild1);
+      nodeChild1 = xmlHelper.createNode("UDN", m_deviceDelegate->getUuid());
+      xmlHelper.appendNode(node, nodeChild1);
       
+      // Add services
+      auto serviceList = m_deviceDelegate->getServiceList();
+      LOGGER_INFO("Service list size:" << serviceList.size());
+      
+      nodeChild1 = xmlHelper.createNode("serviceList");
+      auto serviceListIt = serviceList.begin();
+      for(; serviceListIt != serviceList.end(); serviceListIt++)
+      {
+         nodeChild2 = xmlHelper.createNode("service");
+         nodeChild3 = xmlHelper.createNode("serviceType", serviceListIt->second->getType().data());
+         xmlHelper.appendNode(nodeChild2, nodeChild3);
+         nodeChild3 = xmlHelper.createNode("serviceId", serviceListIt->second->getType().data());
+         xmlHelper.appendNode(nodeChild2, nodeChild3);
+         nodeChild3 = xmlHelper.createNode("controlURL", serviceListIt->second->getType().data());
+         xmlHelper.appendNode(nodeChild2, nodeChild3);
+         nodeChild3 = xmlHelper.createNode("eventSubURL", serviceListIt->second->getType().data());
+         xmlHelper.appendNode(nodeChild2, nodeChild3);
+         nodeChild3 = xmlHelper.createNode("SCPDURL", serviceListIt->second->getType().data());
+         xmlHelper.appendNode(nodeChild2, nodeChild3);
+         
+         xmlHelper.appendNode(nodeChild1, nodeChild2);
+      }
+      xmlHelper.appendNode(node, nodeChild1);
+      xmlHelper.appendNode(node);
       
       /*
        * <deviceType>urn:schemas-upnp-org:device:MediaServer:1</deviceType>

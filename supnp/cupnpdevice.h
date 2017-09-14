@@ -12,10 +12,10 @@ class CUPnPDevice
 {
 public:
    virtual ~CUPnPDevice();
-   static CUPnPDevice *create(const std::string &serviceDescPath = "",
+   static CUPnPDevice *create(IUPnPDeviceDelegate *deviceDelegate,
+                              const std::string &serviceDescPath = "",
                               const std::string &host = "",
-                              uint32_t port = 90000,
-                              IUPnPDeviceDelegate *deviceDelegate = NULL);
+                              uint32_t port = 90000);
    bool run();
 protected:
    CUPnPDevice(const std::string &serviceDescPath,
