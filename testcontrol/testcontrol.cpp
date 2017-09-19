@@ -12,7 +12,6 @@ int main(int argc, char *argv[])
       upnpCtrl->search("ssdp:all");
       while(upnpCtrl->run())
       {
-         std::cout << "fdfs" << std::endl;
          usleep(100000);
       }
    }

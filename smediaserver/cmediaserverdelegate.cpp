@@ -16,6 +16,7 @@
 #define UPNP_MEDIA_SERVER_SERVICE_CDS "urn:schemas-upnp-org:service:ContentDirectory:1"
 #define UPNP_MEDIA_SERVER_SERVICE_ID  "urn:upnp-org:serviceId:ContentDirectory"
 #define RESOURCE_MEDIA_SERVER_CDS     STR(RESOURCE_PATH)"/resources/mediaServerCDS.xml"
+#define RESOURCE_MEDIA_SERVER_CDS_URL "mediaServerCDS.xml"
 //#define RESOURCE_MEDIA_SERVER_ROOT STR(RESOURCE_PATH)"/resources/mediaServerRoot.xml"
 
 
@@ -51,7 +52,7 @@ CMediaServerDelegate::~CMediaServerDelegate()
 
 const char *CMediaServerDelegate::getDeviceType() const
 {
-   return "something";
+   return UPNP_MEDIA_SERVER_DEVICE_TYPE;
 }
 
 const char *CMediaServerDelegate::getFriendlyName() const
@@ -104,6 +105,7 @@ void CMediaServerDelegate::registerServices()
    
    registerService(UPNP_MEDIA_SERVER_SERVICE_CDS,
                    UPNP_MEDIA_SERVER_SERVICE_ID,
+                   RESOURCE_MEDIA_SERVER_CDS_URL,
                    RESOURCE_MEDIA_SERVER_CDS);
    //registerConnectionManager();
    //AVTransport();
@@ -111,6 +113,7 @@ void CMediaServerDelegate::registerServices()
 
 bool CMediaServerDelegate::registerService(const std::string &type,
                                            const std::string &id,
+                                           const std::string &url,
                                            const std::string &descrXmlPath)
 {
    std::string *xmlContent = new std::string;
@@ -128,6 +131,7 @@ bool CMediaServerDelegate::registerService(const std::string &type,
          CUPnPService *service = CUPnPService::create();
          service->setType(type);
          service->setId(id);
+         service->setSCPDUrl(url);
          
          if(service->deserialize(root_node))
          {

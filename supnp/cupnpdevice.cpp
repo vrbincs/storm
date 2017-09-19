@@ -83,7 +83,7 @@ bool CUPnPDevice::run()
 {
    if(m_running)
    {
-      int err = UpnpSendAdvertisement(deviceHandle, 1);
+      int err = UpnpSendAdvertisement(deviceHandle, 60);
       
       if(err != UPNP_E_SUCCESS)
       {
@@ -100,15 +100,20 @@ bool CUPnPDevice::run()
 
 bool CUPnPDevice::startServices()
 {
+   m_baseURI = createUrl("");
    // create descriptionXML
-   createDescriptionXml();
+   if(!createDescriptionXml())
+   {
+      LOGGER_ERROR("Error in creation of description XML.");
+      return false;
+   }
    
-   std::string url = createUrl(m_serviceDescPath);
-   LOGGER_TRACE("New CUPnPDevice:'" << url.c_str() << "' is bind to the address:" << m_host << " at port:" << m_port << ", webserverEnabled=" << UpnpIsWebserverEnabled());
+   LOGGER_INFO("Device description:" << m_descriptionXml);
+   LOGGER_TRACE("New CUPnPDevice:'" << m_baseURI << "' is bind to the address:" << m_host << " at port:" << m_port << ", webserverEnabled=" << UpnpIsWebserverEnabled());
    
    // Start HTTP server first
    int err = 0;
-   if((err = UpnpSetWebServerRootDir("./")) != UPNP_E_SUCCESS)
+   if((err = UpnpSetWebServerRootDir("/")) != UPNP_E_SUCCESS)
    {
       LOGGER_ERROR("Unable to set HTTP root directory. dir=" << m_serviceDescPath << ", err=" << err);
       return false;
@@ -117,7 +122,7 @@ bool CUPnPDevice::startServices()
    if((err = UpnpRegisterRootDevice2(UPNPREG_BUF_DESC,
                                      m_descriptionXml.c_str(),
                                      m_descriptionXml.size(),
-                                     0,
+                                     1,
                                      deviceCallback,
                                      this,
                                      &deviceHandle)) != UPNP_E_SUCCESS)
@@ -144,19 +149,19 @@ std::string CUPnPDevice::createUrl(const std::string &path)
    return url;
 }
 
-void CUPnPDevice::createDescriptionXml()
+bool CUPnPDevice::createDescriptionXml()
 {
    try
    {
       CRapidXmlHelper xmlHelper;
+      rapidxml::xml_node<> *nodeRoot = NULL;
       rapidxml::xml_node<> *node = NULL;
       rapidxml::xml_node<> *nodeChild1 = NULL;
       rapidxml::xml_node<> *nodeChild2 = NULL;
       rapidxml::xml_node<> *nodeChild3 = NULL;
       
-      node = xmlHelper.createNode("root");
-      xmlHelper.appendAttribute("xmlns", "urn:schemas-upnp-org:device-1-0", node);
-      xmlHelper.appendNode(node);
+      nodeRoot = xmlHelper.createNode("root");
+      xmlHelper.appendAttribute("xmlns", "urn:schemas-upnp-org:device-1-0", nodeRoot);
       
       // Add specVersion
       node = xmlHelper.createNode("specVersion");
@@ -164,7 +169,11 @@ void CUPnPDevice::createDescriptionXml()
       xmlHelper.appendNode(node, nodeChild1);
       nodeChild1 = xmlHelper.createNode("minor", "1");
       xmlHelper.appendNode(node, nodeChild1);
-      xmlHelper.appendNode(node);
+      xmlHelper.appendNode(nodeRoot, node);
+      
+      // Add URLBase
+      node = xmlHelper.createNode("URLBase", m_baseURI.c_str());
+      xmlHelper.appendNode(nodeRoot, node);
       
       // Add device
       node = xmlHelper.createNode("device");
@@ -192,40 +201,25 @@ void CUPnPDevice::createDescriptionXml()
          xmlHelper.appendNode(nodeChild2, nodeChild3);
          nodeChild3 = xmlHelper.createNode("serviceId", serviceListIt->second->getId());
          xmlHelper.appendNode(nodeChild2, nodeChild3);
-         nodeChild3 = xmlHelper.createNode("controlURL", serviceListIt->second->getType());
+         nodeChild3 = xmlHelper.createNode("controlURL", serviceListIt->second->getControlUrl());
          xmlHelper.appendNode(nodeChild2, nodeChild3);
-         nodeChild3 = xmlHelper.createNode("eventSubURL", serviceListIt->second->getType());
+         nodeChild3 = xmlHelper.createNode("eventSubURL", serviceListIt->second->getEventUrl());
          xmlHelper.appendNode(nodeChild2, nodeChild3);
-         nodeChild3 = xmlHelper.createNode("SCPDURL", serviceListIt->second->getType());
+         nodeChild3 = xmlHelper.createNode("SCPDURL", serviceListIt->second->getSCPDUrl());
          xmlHelper.appendNode(nodeChild2, nodeChild3);
          
          xmlHelper.appendNode(nodeChild1, nodeChild2);
       }
       xmlHelper.appendNode(node, nodeChild1);
-      xmlHelper.appendNode(node);
+      xmlHelper.appendNode(nodeRoot, node);
       
-      /*
-       * <deviceType>urn:schemas-upnp-org:device:MediaServer:1</deviceType>
-      <friendlyName>STORM Media server</friendlyName>
-      <manufacturer>Sasho Vrbinc</manufacturer>
-      <manufacturerURL>http://www.sasho.com/</manufacturerURL>
-      <modelDescription />
-      <UDN>uuid:7e931908-b67d-4f62-a8fb-6ea0c54c6d9d</UDN>
-      <serviceList>
-         <service>
-            <serviceType>urn:schemas-upnp-org:service:ContentDirectory:1</serviceType>
-            <serviceId>urn:upnp-org:serviceId:ContentDirectory</serviceId>
-            <controlURL />
-            <eventSubURL />
-            <SCPDURL>SampleSCPD.xml</SCPDURL>
-         </service>
-      </serviceList>
-       */
+      xmlHelper.appendNode(nodeRoot);
       
-      std::cout << xmlHelper.toString();
-      //LOGGER_INFO(document);
-   }catch(const std::bad_alloc &e)
+      m_descriptionXml = xmlHelper.toString();
+      return true;
+   }catch(...)
    {
-      LOGGER_INFO("ERROR");
+      LOGGER_WARN("ERROR while creating XML.");
+      return false;
    }
 }

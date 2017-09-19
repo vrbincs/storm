@@ -26,6 +26,7 @@ protected:
    bool addService(CUPnPService *service);
    bool registerService(const std::string &type,
                         const std::string &id,
+                        const std::string &url,
                         const std::string &descrXmlPath);
 
 

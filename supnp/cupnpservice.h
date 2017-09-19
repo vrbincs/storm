@@ -25,9 +25,9 @@ public:
    
    inline const char * getType() const { return m_type.data(); }
    inline const char * getId() const { return m_id.data(); }
-   inline const char * getSCPDUrl() const { return m_id.data(); }
-   inline const char * getControlUrl() const { return m_id.data(); }
-   inline const char * getEventUrl() const { return m_id.data(); }
+   inline const char * getSCPDUrl() const { return m_scpdUrl.data(); }
+   inline const char * getControlUrl() const { return m_ctrlUrl.data(); }
+   inline const char * getEventUrl() const { return m_eventUrl.data(); }
    
    inline int getVersionMajor() const { return m_verMajor; }
    inline int getVersionMinor() const { return m_verMinor; }

@@ -15,7 +15,7 @@ static int controlPointCallback(Upnp_EventType eventType,
 {
    switch(eventType)
    {
-      case UPNP_DISCOVERY_SEARCH_RESULT:
+      case UPNP_DISCOVERY_ADVERTISEMENT_ALIVE:
       {
          Upnp_Discovery *eventDiscovery = reinterpret_cast<Upnp_Discovery *>(event);
          LOGGER_INFO(eventDiscovery->DeviceId);
@@ -23,7 +23,7 @@ static int controlPointCallback(Upnp_EventType eventType,
       }
       break;
       default:
-         LOGGER_INFO("controlPointCallback::" << eventType << ":" << event << ":" << cookie);
+         //LOGGER_INFO("controlPointCallback::" << eventType << ":" << event << ":" << cookie);
       break;
    }
    
