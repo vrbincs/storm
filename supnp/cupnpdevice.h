@@ -33,7 +33,7 @@ private:
    
    std::string m_descriptionXml;
    std::string m_baseURI;
-   std::string createUrl(const std::string &path);
+   std::string createUrl(const std::string &path = "");
    
    bool createDescriptionXml();
 };

@@ -19,6 +19,9 @@ public:
    const char *getManufacturer() const override;
    const char *getManufacturerUrl() const override;
    const char *getUuid() const override;
+   
+   const char *getSCPD(const std::string &serviceType) const override;
+   
 protected:
    bool onAction(const CUPnPAction &action) override;
    std::map<std::string, CUPnPService *> getServiceList() const override;

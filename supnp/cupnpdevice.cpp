@@ -9,8 +9,29 @@
 #include "iupnpdevicedelegate.h"
 #include "cupnpservice.h"
 
+#include "cupnphelper.h"
+
 static CUPnPDevice *l_upnpDevice = NULL;
 static UpnpDevice_Handle deviceHandle;
+
+static const uint32_t l_aliveAdvertTime = 1800;
+
+static bool sendUPnPAdvertisement()
+{
+   int err = UpnpSendAdvertisement(deviceHandle, l_aliveAdvertTime);
+   
+   if(err != UPNP_E_SUCCESS)
+   {
+      LOGGER_ERROR("Unable to send advertisement. err=" << err);
+      return false;
+   }
+   else
+   {
+      LOGGER_INFO("Alive successfully advertised.");
+   }
+   
+   return true;
+}
 
 static int deviceCallback(Upnp_EventType eventType,
                           void *event,
@@ -53,7 +74,7 @@ CUPnPDevice *CUPnPDevice::create(IUPnPDeviceDelegate *deviceDelegate,
    return l_upnpDevice;
 }
 
-CUPnPDevice::CUPnPDevice(const std::string &serviceDescPath, 
+CUPnPDevice::CUPnPDevice(const std::string &serviceDescPath,
                          const std::string &host,
                          uint32_t port,
                          IUPnPDeviceDelegate *deviceDelegate)
@@ -83,16 +104,6 @@ bool CUPnPDevice::run()
 {
    if(m_running)
    {
-      int err = UpnpSendAdvertisement(deviceHandle, 60);
-      
-      if(err != UPNP_E_SUCCESS)
-      {
-         LOGGER_ERROR("Unable to send advertisement. err=" << err);
-      }
-      else
-      {
-         LOGGER_TRACE("ok");
-      }
    }
    
    return m_running;
@@ -100,7 +111,8 @@ bool CUPnPDevice::run()
 
 bool CUPnPDevice::startServices()
 {
-   m_baseURI = createUrl("");
+   m_baseURI = createUrl();
+   
    // create descriptionXML
    if(!createDescriptionXml())
    {
@@ -130,6 +142,11 @@ bool CUPnPDevice::startServices()
       LOGGER_ERROR("Unable to register root device. err=" << err);
       return false;
    }
+   
+   
+   //UpnpSetVirtualDirCallbacks();
+   
+   sendUPnPAdvertisement();
 
    return true;
 }

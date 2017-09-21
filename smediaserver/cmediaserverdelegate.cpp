@@ -75,6 +75,20 @@ const char *CMediaServerDelegate::getUuid() const
    return m_uuid.data();
 }
 
+const char *CMediaServerDelegate::getSCPD(const std::string &serviceType) const
+{
+   auto service_it = m_serviceSCPD.find(serviceType);
+   
+   if(service_it == m_serviceSCPD.end())
+   {
+      return NULL;
+   }
+   else
+   {
+      return service_it->second->data();
+   }
+}
+
 bool CMediaServerDelegate::onAction(const CUPnPAction &action)
 {
    return false;
