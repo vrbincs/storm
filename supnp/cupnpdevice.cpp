@@ -1,5 +1,7 @@
 #include <string>
 #include <memory>
+#include <cstring>
+#include <vector>
 
 #include <upnp/upnp.h>
 
@@ -8,7 +10,7 @@
 #include "crapidxmlhelper.h"
 #include "iupnpdevicedelegate.h"
 #include "cupnpservice.h"
-
+#include "cupnpwww.h"
 #include "cupnphelper.h"
 
 static CUPnPDevice *l_upnpDevice = NULL;
@@ -123,14 +125,12 @@ bool CUPnPDevice::startServices()
    LOGGER_INFO("Device description:" << m_descriptionXml);
    LOGGER_TRACE("New CUPnPDevice:'" << m_baseURI << "' is bind to the address:" << m_host << " at port:" << m_port << ", webserverEnabled=" << UpnpIsWebserverEnabled());
    
-   // Start HTTP server first
-   int err = 0;
-   if((err = UpnpSetWebServerRootDir("/")) != UPNP_E_SUCCESS)
+   if(!startWebService())
    {
-      LOGGER_ERROR("Unable to set HTTP root directory. dir=" << m_serviceDescPath << ", err=" << err);
       return false;
    }
    
+   int err = 0;
    if((err = UpnpRegisterRootDevice2(UPNPREG_BUF_DESC,
                                      m_descriptionXml.c_str(),
                                      m_descriptionXml.size(),
@@ -143,24 +143,57 @@ bool CUPnPDevice::startServices()
       return false;
    }
    
-   
-   //UpnpSetVirtualDirCallbacks();
-   
    sendUPnPAdvertisement();
 
+   return true;
+}
+
+bool CUPnPDevice::startWebService()
+{
+   int err = 0;
+   
+   CUPnPWWW *wwwInst = CUPnPWWW::instance();
+   
+   // install www directories
+   auto serviceList = m_deviceDelegate->getServiceList();
+   auto serviceListIt = serviceList.begin();
+   for(; serviceListIt != serviceList.end(); serviceListIt++)
+   {
+      const char *scpdXml = serviceListIt->second->getScpd();
+      wwwInst->addFileWithPath(serviceListIt->second->getSCPDPath(),
+                               scpdXml,
+                               strlen(scpdXml));
+   }
+   
+   if((err = UpnpSetWebServerRootDir("/")) != UPNP_E_SUCCESS)
+   {
+      LOGGER_ERROR("Unable to set HTTP root directory. err=" << err);
+      return false;
+   }
+   
    return true;
 }
 
 std::string CUPnPDevice::createUrl(const std::string &path)
 {
    std::string url;
+   url.reserve(100);
+   
+   if(!path.empty() && path.at(0) != '/')
+   {
+      LOGGER_ERROR("Path should begin with '/'");
+      return url;
+   }
+   
+   
    url.reserve(256);
    
    url += "http://";
    url += UpnpGetServerIpAddress();
    url += ":";
    url += std::to_string(UpnpGetServerPort());
-   url += "/";
+   
+   
    url += path;
    
    return url;
@@ -210,6 +243,10 @@ bool CUPnPDevice::createDescriptionXml()
       LOGGER_INFO("Service list size:" << serviceList.size());
       
       nodeChild1 = xmlHelper.createNode("serviceList");
+      
+      std::vector<std::shared_ptr<std::string> > stringList;
+      stringList.reserve(50);
+      
       auto serviceListIt = serviceList.begin();
       for(; serviceListIt != serviceList.end(); serviceListIt++)
       {
@@ -222,9 +259,12 @@ bool CUPnPDevice::createDescriptionXml()
          xmlHelper.appendNode(nodeChild2, nodeChild3);
          nodeChild3 = xmlHelper.createNode("eventSubURL", serviceListIt->second->getEventUrl());
          xmlHelper.appendNode(nodeChild2, nodeChild3);
-         nodeChild3 = xmlHelper.createNode("SCPDURL", serviceListIt->second->getSCPDUrl());
-         xmlHelper.appendNode(nodeChild2, nodeChild3);
          
+         std::shared_ptr<std::string> scpdUrlPtr = std::shared_ptr<std::string>(new std::string(m_baseURI + serviceListIt->second->getSCPDPath()));
+         stringList.push_back(scpdUrlPtr);
+         
+         nodeChild3 = xmlHelper.createNode("SCPDURL", scpdUrlPtr->c_str());
+         xmlHelper.appendNode(nodeChild2, nodeChild3);
          xmlHelper.appendNode(nodeChild1, nodeChild2);
       }
       xmlHelper.appendNode(node, nodeChild1);

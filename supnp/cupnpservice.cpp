@@ -73,6 +73,11 @@ bool CUPnPService::deserialize(rapidxml::xml_node<> *xmlNode)
    }
 }
 
+bool CUPnPService::serialize(rapidxml::xml_node<> *xmlNode)
+{
+   return false;
+}
+
 CUPnPService *CUPnPService::create()
 {
    return new CUPnPService();

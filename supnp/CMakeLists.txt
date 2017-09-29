@@ -19,7 +19,8 @@ set ( SOURCES ${SOURCES} cupnpdevice.cpp
                          cupnpaction.cpp
                          cupnpservice.cpp
                          cstring.cpp
-                         cupnphelperlinux.cpp )
+                         cupnphelperlinux.cpp
+                         cupnpwww.cpp )
 
 add_library(supnp SHARED ${SOURCES})
 target_link_libraries ( supnp ${LIBUPNP_LIBRARIES} )

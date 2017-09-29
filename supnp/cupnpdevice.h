@@ -24,6 +24,7 @@ protected:
                IUPnPDeviceDelegate *deviceDelegate);
 
    bool startServices();
+   bool startWebService();
 private:
    std::string m_serviceDescPath;
    std::string m_host;

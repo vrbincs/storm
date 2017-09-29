@@ -29,7 +29,7 @@ protected:
    bool addService(CUPnPService *service);
    bool registerService(const std::string &type,
                         const std::string &id,
-                        const std::string &url,
+                        const std::string &scpdServerPath,
                         const std::string &descrXmlPath);
 
 
@@ -41,7 +41,7 @@ private:
    std::string m_manufacturer;
    std::string m_manufacturerUrl;
    
-   std::map<std::string, std::string *> m_serviceSCPD;
+   std::map<std::string, std::string> m_serviceSCPD;
    
    void registerServices();
 };

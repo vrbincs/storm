@@ -7,7 +7,7 @@ public:
    /**
     * \brief Returns current UTC time in miliseconds
     */
-   static uint32_t getCurrentTimeUtc();
+   static uint32_t getCurrentLocalTime();
 private:
    CUPnPHelper(){}
    virtual ~CUPnPHelper(){}
