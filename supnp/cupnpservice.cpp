@@ -12,7 +12,8 @@ CUPnPService::CUPnPService(const std::string &type,
    : m_type(type),
      m_id(id),
      m_verMajor(verMajor),
-     m_verMinor(verMinor)
+     m_verMinor(verMinor),
+     m_refreshScpd(true)
 {
 }
 
@@ -21,6 +22,7 @@ bool CUPnPService::addAction(CUPnPActionDesc *action)
    if(m_actionList.find(action->getName()) == m_actionList.end())
    {
       m_actionList.insert(std::pair<std::string, CUPnPActionDesc*>(action->getName(), action));
+      m_refreshScpd = true;
       return true;
    }
    
@@ -53,12 +55,12 @@ bool CUPnPService::deserialize(rapidxml::xml_node<> *xmlNode)
          else if(xmlHelper.getNodeValue() == "actionList")
          {
             // parse action lists
-            LOGGER_INFO("parsing actionList");
+            LOGGER_INFO("TODO: parsing actionList");
          }
          else if(xmlHelper.getNodeValue() == "serviceStateTable")
          {
             // parse state variables
-            LOGGER_INFO("parsing serviceStateTable");
+            LOGGER_INFO("TODO: parsing serviceStateTable");
          }
          
          xmlHelper.nextSibling();
@@ -73,12 +75,39 @@ bool CUPnPService::deserialize(rapidxml::xml_node<> *xmlNode)
    }
 }
 
-bool CUPnPService::serialize(rapidxml::xml_node<> *xmlNode)
+std::string CUPnPService::serialize()
 {
-   return false;
+   std::string scpd;
+   
+   CRapidXmlHelper helper;
+   rapidxml::xml_node<> *node0 = helper.createNode("scpd");
+   helper.appendAttribute("xmlns", "urn:schemas-upnp-org:service-1-0", node0);
+   
+   rapidxml::xml_node<> *node1 = helper.createNode("specVersion");
+   rapidxml::xml_node<> *node2 = helper.createNode("major", "1");
+   rapidxml::xml_node<> *node3 = helper.createNode("minor", "0");
+   helper.appendNode(node1, node2);
+   helper.appendNode(node1, node3);
+   helper.appendNode(node0, node1);
+   
+   
+   
+   helper.appendNode(node0);
+   return helper.toString();
 }
 
 CUPnPService *CUPnPService::create()
 {
    return new CUPnPService();
+}
+
+const char *CUPnPService::getScpd()
+{ 
+   if(m_refreshScpd)
+   {
+      m_scpd = serialize();
+      m_refreshScpd = false;
+   }
+   
+   return m_scpd.data();
 }

@@ -22,14 +22,13 @@ public:
    inline void setSCPDPath(const std::string &path) { m_scpdPath = path; }
    inline void setControlUrl(const std::string &url) { m_ctrlUrl = url; }
    inline void setEventUrl(const std::string &url) { m_eventUrl = url; }
-   inline void setScpd(const std::string &scpd) { m_scpd = scpd; }
    
    inline const char * getType() const { return m_type.data(); }
    inline const char * getId() const { return m_id.data(); }
    inline const char * getSCPDPath() const { return m_scpdPath.data(); }
    inline const char * getControlUrl() const { return m_ctrlUrl.data(); }
    inline const char * getEventUrl() const { return m_eventUrl.data(); }
-   inline const char * getScpd() const { return m_scpd.data(); }
+   const char *getScpd();
    
    inline int getVersionMajor() const { return m_verMajor; }
    inline int getVersionMinor() const { return m_verMinor; }
@@ -37,7 +36,7 @@ public:
    bool addAction(CUPnPActionDesc *action);
    
    bool deserialize(rapidxml::xml_node<> *xmlNode);
-   bool serialize(rapidxml::xml_node<> *xmlNode);
+   std::string serialize();
    
    static CUPnPService *create();
 private:
@@ -50,6 +49,8 @@ private:
    
    int m_verMajor;
    int m_verMinor;
+   
+   bool m_refreshScpd;
    
    std::map<std::string, CUPnPActionDesc *> m_actionList;
 };

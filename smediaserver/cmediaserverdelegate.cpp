@@ -135,7 +135,6 @@ bool CMediaServerDelegate::registerService(const std::string &type,
          service->setType(type);
          service->setId(id);
          service->setSCPDPath(scpdServerPath);
-         service->setScpd(xmlContent);
          
          rapidxml::xml_document<> deviceDescXmlDoc;
          deviceDescXmlDoc.parse<0>(&(xmlContent)[0]);
