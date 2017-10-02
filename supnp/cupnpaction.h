@@ -15,14 +15,19 @@ enum UPnPType
 
 class CUPnPAction
 {
+public:
+   static CUPnPAction *create();
+   bool deserialize(rapidxml::xml_node<> *xmlNode);
 protected:
-   CUPnPAction(const CUPnPActionDesc *);
+   CUPnPAction(const CUPnPActionDesc * = NULL);
 
    std::string getName() const;
    CValue *getValue() const;
 private:
    const CUPnPActionDesc *m_upnpActionDesc;
    CValue *m_value;
+   
+   std::string m_name;
 };
 
 #endif // CUPNPACTION_H

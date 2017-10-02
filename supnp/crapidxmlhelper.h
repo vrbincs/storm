@@ -5,6 +5,7 @@
 #include <rapidxml_print.hpp>
 
 #include <cstring.h>
+#include <cstring>
 
 class CRapidXmlHelper
 {
@@ -63,7 +64,7 @@ public:
       return str_t;
    }
    
-   inline std::string getNodeValue()
+   inline std::string getNodeName()
    {
       if(m_node)
       {
@@ -79,6 +80,11 @@ public:
       {
          m_node = m_node->first_node();
       }
+      return m_node;
+   }
+   
+   inline rapidxml::xml_node<> *node()
+   {
       return m_node;
    }
    
@@ -99,6 +105,11 @@ public:
    inline CString getNodeValue(const std::string &nodeName)
    {
       return CString(m_node->value());
+   }
+   
+   inline std::string getNodeValue()
+   {
+      return m_node->value();
    }
    
    inline void appendAttribute(const char *name,
@@ -141,6 +152,18 @@ public:
       }
       
       return xml_as_string;
+   }
+   
+   inline bool isNodeName(const char *name)
+   {
+      if(m_node && (strcmp(m_node->name(), name) == 0))
+      {
+         return true;
+      }
+      else
+      {
+         return false;
+      }
    }
 private:
    rapidxml::xml_document<> *m_document;

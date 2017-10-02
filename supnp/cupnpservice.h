@@ -38,7 +38,7 @@ public:
    bool deserialize(rapidxml::xml_node<> *xmlNode);
    std::string serialize();
    
-   static CUPnPService *create();
+   static CUPnPService *create(char *xmlbuf = NULL);
 private:
    std::string m_type;
    std::string m_id;
@@ -53,6 +53,8 @@ private:
    bool m_refreshScpd;
    
    std::map<std::string, CUPnPActionDesc *> m_actionList;
+   
+   void setScpd(const char *scpd);
 };
 
 

@@ -1,7 +1,10 @@
+#include <memory>
+
 #include "logger.h"
 
 #include "cupnpactionargumentdesc.h"
 #include "cupnpactiondesc.h"
+#include "cupnpaction.h"
 #include "cupnpservice.h"
 #include "crapidxmlhelper.h"
 
@@ -34,13 +37,14 @@ bool CUPnPService::deserialize(rapidxml::xml_node<> *xmlNode)
 {
    CRapidXmlHelper xmlHelper(xmlNode);
    
-   if(xmlHelper.getAttributeValue("xmlns") == "urn:schemas-upnp-org:service-1-0")
+   if(xmlHelper.getNodeName() == "scpd" &&
+      xmlHelper.getAttributeValue("xmlns") == "urn:schemas-upnp-org:service-1-0")
    {
       xmlHelper.next();
       
       while(xmlHelper.isValid())
       {
-         if(xmlHelper.getNodeValue() == "specVersion")
+         if(xmlHelper.getNodeName() == "specVersion")
          {
             CRapidXmlHelper xmlHelperVersion(xmlHelper);
             
@@ -48,16 +52,29 @@ bool CUPnPService::deserialize(rapidxml::xml_node<> *xmlNode)
             
             m_verMajor = xmlHelperVersion.getNodeValue("major").toInt32();
             m_verMinor = xmlHelperVersion.getNodeValue("minor").toInt32();
-            
-            // parse version
-            LOGGER_INFO("parsing specVersion");
          }
-         else if(xmlHelper.getNodeValue() == "actionList")
+         else if(xmlHelper.getNodeName() == "actionList")
          {
             // parse action lists
             LOGGER_INFO("TODO: parsing actionList");
+            xmlHelper.next();
+            
+            while(xmlHelper.getNodeName() == "action")
+            {
+               CUPnPAction *action = CUPnPAction::create();
+               if(action->deserialize(xmlHelper.node()))
+               {
+                  
+               }
+               else
+               {
+                  LOGGER_ERROR("Unable to serialize CUPnPAction.");
+               }
+               
+               xmlHelper.nextSibling();
+            }
          }
-         else if(xmlHelper.getNodeValue() == "serviceStateTable")
+         else if(xmlHelper.getNodeName() == "serviceStateTable")
          {
             // parse state variables
             LOGGER_INFO("TODO: parsing serviceStateTable");
@@ -96,9 +113,35 @@ std::string CUPnPService::serialize()
    return helper.toString();
 }
 
-CUPnPService *CUPnPService::create()
+CUPnPService *CUPnPService::create(char *xmlbuf)
 {
-   return new CUPnPService();
+   std::unique_ptr<CUPnPService> instance = std::unique_ptr<CUPnPService>(new CUPnPService());
+   
+   if(xmlbuf != NULL)
+   {
+      try
+      {
+         // We need to copy the XML content before we pass it to the parser.
+         instance->setScpd(xmlbuf);
+         
+         rapidxml::xml_document<> deviceDescXmlDoc;
+         deviceDescXmlDoc.parse<0>(xmlbuf);
+         rapidxml::xml_node<> *scpdNode = deviceDescXmlDoc.first_node("scpd");
+         
+         if(!instance->deserialize(scpdNode))
+         {
+            LOGGER_ERROR("Error while de-serialization of the XML.");
+            return NULL;
+         }
+      }
+      catch(const rapidxml::parse_error &err)
+      {
+         LOGGER_ERROR("XML parse error. what='" << err.what() << "'");
+         return NULL;
+      }
+   }
+   
+   return instance.release();
 }
 
 const char *CUPnPService::getScpd()
@@ -110,4 +153,10 @@ const char *CUPnPService::getScpd()
    }
    
    return m_scpd.data();
+}
+
+void CUPnPService::setScpd(const char *scpd)
+{
+   m_scpd = scpd;
+   m_refreshScpd = false;
 }

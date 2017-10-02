@@ -69,20 +69,6 @@ const char *CMediaServerDelegate::getUuid() const
    return m_uuid.data();
 }
 
-const char *CMediaServerDelegate::getSCPD(const std::string &serviceType) const
-{
-   auto service_it = m_serviceSCPD.find(serviceType);
-   
-   if(service_it == m_serviceSCPD.end())
-   {
-      return NULL;
-   }
-   else
-   {
-      return service_it->second.data();
-   }
-}
-
 bool CMediaServerDelegate::onAction(const CUPnPAction &action)
 {
    return false;
@@ -128,20 +114,16 @@ bool CMediaServerDelegate::registerService(const std::string &type,
    
    if(loadFile(descrXmlPath, xmlContent))
    {
-      m_serviceSCPD[type] = xmlContent;
       try
       {
-         CUPnPService *service = CUPnPService::create();
-         service->setType(type);
-         service->setId(id);
-         service->setSCPDPath(scpdServerPath);
+         CUPnPService *service = CUPnPService::create(&(xmlContent)[0]);
          
-         rapidxml::xml_document<> deviceDescXmlDoc;
-         deviceDescXmlDoc.parse<0>(&(xmlContent)[0]);
-         rapidxml::xml_node<> *root_node = deviceDescXmlDoc.first_node("scpd");
-         
-         if(service->deserialize(root_node))
+         if(service)
          {
+            service->setType(type);
+            service->setId(id);
+            service->setSCPDPath(scpdServerPath);
+            
             return addService(service);
          }
          else
