@@ -2,8 +2,6 @@
 
 #include "logger.h"
 
-#include "cupnpactionargumentdesc.h"
-#include "cupnpactiondesc.h"
 #include "cupnpaction.h"
 #include "cupnpservice.h"
 #include "crapidxmlhelper.h"
@@ -20,11 +18,11 @@ CUPnPService::CUPnPService(const std::string &type,
 {
 }
 
-bool CUPnPService::addAction(CUPnPActionDesc *action)
+bool CUPnPService::addAction(CUPnPAction *action)
 {
-   if(m_actionList.find(action->getName()) == m_actionList.end())
+   if(m_actionList.find(*action->getName().get()) == m_actionList.end())
    {
-      m_actionList.insert(std::pair<std::string, CUPnPActionDesc*>(action->getName(), action));
+      m_actionList.insert(std::pair<std::string, CUPnPAction *>(*action->getName().get(), action));
       m_refreshScpd = true;
       return true;
    }

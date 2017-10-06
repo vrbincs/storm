@@ -2,10 +2,10 @@
    #define CUPNPACTION_H
 
 #include <string>
+#include <map>
 #include <rapidxml.hpp>
 
-class CUPnPActionDesc;
-class CValue;
+#include <cstring.h>
 
 enum UPnPType
 {
@@ -13,21 +13,31 @@ enum UPnPType
    UPnPType_String
 };
 
+class CUPnPActionArg
+{
+public:
+   CStringPtr getName() const
+   {
+      return CStringPtr(new CString("testAction"));
+   }
+};
+
+typedef std::shared_ptr<CUPnPActionArg> CUPnPActionArgPtr;
+
 class CUPnPAction
 {
 public:
+   CStringPtr getName() const;
+   
+   bool addArg(CUPnPActionArg *arg);
+   
    static CUPnPAction *create();
    bool deserialize(rapidxml::xml_node<> *xmlNode);
 protected:
-   CUPnPAction(const CUPnPActionDesc * = NULL);
-
-   std::string getName() const;
-   CValue *getValue() const;
+   CUPnPAction();
 private:
-   const CUPnPActionDesc *m_upnpActionDesc;
-   CValue *m_value;
-   
-   std::string m_name;
+   CStringPtr m_name;
+   std::map<CStringPtr, CUPnPActionArgPtr, CString::CStringPtrCompare> m_argumentMap;
 };
 
 #endif // CUPNPACTION_H

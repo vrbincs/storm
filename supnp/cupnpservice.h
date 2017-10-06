@@ -6,7 +6,9 @@
 
 #include <rapidxml.hpp>
 
-class CUPnPActionDesc;
+#include <cstring.h>
+
+class CUPnPAction;
 
 class CUPnPService
 {
@@ -33,7 +35,7 @@ public:
    inline int getVersionMajor() const { return m_verMajor; }
    inline int getVersionMinor() const { return m_verMinor; }
    
-   bool addAction(CUPnPActionDesc *action);
+   bool addAction(CUPnPAction *action);
    
    bool deserialize(rapidxml::xml_node<> *xmlNode);
    std::string serialize();
@@ -52,7 +54,7 @@ private:
    
    bool m_refreshScpd;
    
-   std::map<std::string, CUPnPActionDesc *> m_actionList;
+   std::map<CString, CUPnPAction *> m_actionList;
    
    void setScpd(const char *scpd);
 };

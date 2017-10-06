@@ -7,8 +7,6 @@
 
 #include <iupnpdevicedelegate.h>
 
-#include <cupnpactionargumentdesc.h>
-#include <cupnpactiondesc.h>
 #include <cupnpaction.h>
 #include <cupnpctrl.h>
 #include <cupnpdevice.h>

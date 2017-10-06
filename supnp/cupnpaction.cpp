@@ -2,26 +2,15 @@
 
 #include "logger.h"
 
-#include "cupnpactionargumentdesc.h"
-#include "cupnpactiondesc.h"
 #include "cupnpaction.h"
 
-CUPnPAction::CUPnPAction(const CUPnPActionDesc *actionDesc)
-   : m_upnpActionDesc(actionDesc)
+CUPnPAction::CUPnPAction()
 {
 }
 
-std::string CUPnPAction::getName() const
+CStringPtr CUPnPAction::getName() const
 {
-   if(m_upnpActionDesc)
-   {
-      return m_upnpActionDesc->getName();
-   }
-   else
-   {
-      LOGGER_WARN("Action description object is NULL.");
-      return std::string();
-   }
+   return m_name;
 }
 
 CUPnPAction *CUPnPAction::create()
@@ -40,7 +29,7 @@ bool CUPnPAction::deserialize(rapidxml::xml_node<> *xmlNode)
       {
          if(xmlHelper.isNodeName("name"))
          {
-            m_name = xmlHelper.getNodeValue();
+            m_name = CStringPtr(CString::create(xmlHelper.getNodeValue()));
             LOGGER_INFO("name=" << m_name);
          }
          else if(xmlHelper.isNodeName("argumentList"))
@@ -50,12 +39,12 @@ bool CUPnPAction::deserialize(rapidxml::xml_node<> *xmlNode)
             while(xmlHelper.isValid())
             {
                std::string tagName;
-            
-               if(tagName == "argument")
+               if(xmlHelper.isNodeName("argument"))
                {
+                  LOGGER_INFO("argument=");
                   //CUPnPActionArgumentDesc *arg = CUPnPActionArgumentDesc::create();
                   //arg->deserialize(childNodeArg);
-                  //addArg(arg);
+                  addArg(new CUPnPActionArg());
                }
                else
                {
@@ -72,7 +61,7 @@ bool CUPnPAction::deserialize(rapidxml::xml_node<> *xmlNode)
          xmlHelper.nextSibling();
       }
       
-      if(!m_name.empty())
+      if(!m_name->empty())
       {
          return true;
       }
@@ -81,3 +70,15 @@ bool CUPnPAction::deserialize(rapidxml::xml_node<> *xmlNode)
    return false;
 }
 
+bool CUPnPAction::addArg(CUPnPActionArg *arg)
+{
+   CUPnPActionArgPtr argPtr(arg);
+ 
+   auto arg_it = m_argumentMap.find(argPtr->getName());
+   if(arg_it == m_argumentMap.end())
+   {
+      m_argumentMap.insert(std::pair<CStringPtr, CUPnPActionArgPtr>(arg->getName(), arg));
+   }
+   
+   return false;
+}
