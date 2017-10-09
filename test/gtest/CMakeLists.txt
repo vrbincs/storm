@@ -16,8 +16,7 @@ pkg_check_modules ( GMOCK REQUIRED gmock )
 
 find_package (Threads REQUIRED)
 
-add_executable ( teststorm testcupnpdevicedesc.cpp
-                           testcmediaserverdelegate.cpp )
+add_executable ( teststorm testcmediaserverdelegate.cpp )
 
 target_link_libraries ( teststorm ${GTEST_LIBRARIES}
                                   -lgmock

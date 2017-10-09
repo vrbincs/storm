@@ -30,7 +30,6 @@ bool CUPnPAction::deserialize(rapidxml::xml_node<> *xmlNode)
          if(xmlHelper.isNodeName("name"))
          {
             m_name = CStringPtr(CString::create(xmlHelper.getNodeValue()));
-            LOGGER_INFO("name=" << m_name);
          }
          else if(xmlHelper.isNodeName("argumentList"))
          {
@@ -41,14 +40,19 @@ bool CUPnPAction::deserialize(rapidxml::xml_node<> *xmlNode)
                std::string tagName;
                if(xmlHelper.isNodeName("argument"))
                {
-                  LOGGER_INFO("argument=");
-                  //CUPnPActionArgumentDesc *arg = CUPnPActionArgumentDesc::create();
-                  //arg->deserialize(childNodeArg);
-                  addArg(new CUPnPActionArg());
+                  CUPnPActionArgPtr argPtr = CUPnPActionArgPtr(CUPnPActionArg::create());
+                  if(argPtr->deserialize(xmlHelper.node()))
+                  {
+                     addArg(argPtr);
+                  }
+                  else
+                  {
+                     LOGGER_ERROR("Unable to add argument.");
+                  }
                }
                else
                {
-                  //LOGGER_WARN("Unkown XML tag. tag=" << tagName);
+                  LOGGER_WARN("Unkown XML tag. tag=" << tagName);
                }
                xmlHelper.nextSibling();
             }
@@ -70,15 +74,19 @@ bool CUPnPAction::deserialize(rapidxml::xml_node<> *xmlNode)
    return false;
 }
 
-bool CUPnPAction::addArg(CUPnPActionArg *arg)
+bool CUPnPAction::addArg(const CUPnPActionArgPtr &arg)
 {
-   CUPnPActionArgPtr argPtr(arg);
- 
-   auto arg_it = m_argumentMap.find(argPtr->getName());
+   auto arg_it = m_argumentMap.find(arg->getName());
    if(arg_it == m_argumentMap.end())
    {
       m_argumentMap.insert(std::pair<CStringPtr, CUPnPActionArgPtr>(arg->getName(), arg));
+      LOGGER_TRACE("Added argument. actionName=" << *m_name << ", arg->getName() = " << *arg->getName());
+      
+      return true;
    }
-   
-   return false;
+   else
+   {
+      LOGGER_WARN("Unable to add argument. arg=" << arg->getName());
+      return false;
+   }
 }

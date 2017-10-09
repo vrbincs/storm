@@ -13,10 +13,8 @@ include_directories(${supnp_SOURCE_DIR})
 
 set ( SOURCES ${SOURCES} cupnpdevice.cpp 
                          cupnpctrl.cpp
-                         cupnpdevicedesc.cpp
-                         cupnpactiondesc.cpp
-                         cupnpactionargumentdesc.cpp
                          cupnpaction.cpp
+                         cupnpactionarg.cpp
                          cupnpservice.cpp
                          cstring.cpp
                          cupnphelperlinux.cpp

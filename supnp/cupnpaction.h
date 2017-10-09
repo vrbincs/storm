@@ -6,6 +6,7 @@
 #include <rapidxml.hpp>
 
 #include <cstring.h>
+#include <cupnpactionarg.h>
 
 enum UPnPType
 {
@@ -13,23 +14,12 @@ enum UPnPType
    UPnPType_String
 };
 
-class CUPnPActionArg
-{
-public:
-   CStringPtr getName() const
-   {
-      return CStringPtr(new CString("testAction"));
-   }
-};
-
-typedef std::shared_ptr<CUPnPActionArg> CUPnPActionArgPtr;
-
 class CUPnPAction
 {
 public:
    CStringPtr getName() const;
    
-   bool addArg(CUPnPActionArg *arg);
+   bool addArg(const CUPnPActionArgPtr &arg);
    
    static CUPnPAction *create();
    bool deserialize(rapidxml::xml_node<> *xmlNode);

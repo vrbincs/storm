@@ -5,7 +5,6 @@
 
 #include <logger.h>
 
-#include <cupnpactionargumentdesc.h>
 #include <cupnpactiondesc.h>
 #include <cupnpdevicedesc.h>
 
