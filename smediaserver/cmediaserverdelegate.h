@@ -27,7 +27,8 @@ protected:
    bool registerService(const std::string &type,
                         const std::string &id,
                         const std::string &scpdServerPath,
-                        const std::string &descrXmlPath);
+                        const std::string &descrXmlPath,
+                        const std::string &controlPath);
 
 
    bool loadFile(const std::string &filePath,

@@ -165,6 +165,8 @@ public:
          return false;
       }
    }
+   
+   inline rapidxml::xml_document<> *getDocument() { return m_document; }
 private:
    rapidxml::xml_document<> *m_document;
    rapidxml::xml_node<> *m_node;

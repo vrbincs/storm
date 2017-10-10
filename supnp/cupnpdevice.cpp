@@ -243,27 +243,24 @@ bool CUPnPDevice::createDescriptionXml()
       LOGGER_INFO("Service list size:" << serviceList.size());
       
       nodeChild1 = xmlHelper.createNode("serviceList");
-      
-      std::vector<std::shared_ptr<std::string> > stringList;
-      stringList.reserve(50);
-      
+
       auto serviceListIt = serviceList.begin();
       for(; serviceListIt != serviceList.end(); serviceListIt++)
       {
+         char *controlUrl = xmlHelper.getDocument()->allocate_string(createUrl(serviceListIt->second->getControlPath()).c_str());
+         char *scpdUrl    = xmlHelper.getDocument()->allocate_string(createUrl(serviceListIt->second->getSCPDPath()).c_str());
+         
          nodeChild2 = xmlHelper.createNode("service");
          nodeChild3 = xmlHelper.createNode("serviceType", serviceListIt->second->getType());
          xmlHelper.appendNode(nodeChild2, nodeChild3);
          nodeChild3 = xmlHelper.createNode("serviceId", serviceListIt->second->getId());
          xmlHelper.appendNode(nodeChild2, nodeChild3);
-         nodeChild3 = xmlHelper.createNode("controlURL", serviceListIt->second->getControlUrl());
+         nodeChild3 = xmlHelper.createNode("controlURL", controlUrl);
          xmlHelper.appendNode(nodeChild2, nodeChild3);
          nodeChild3 = xmlHelper.createNode("eventSubURL", serviceListIt->second->getEventUrl());
          xmlHelper.appendNode(nodeChild2, nodeChild3);
-         
-         std::shared_ptr<std::string> scpdUrlPtr = std::shared_ptr<std::string>(new std::string(m_baseURI + serviceListIt->second->getSCPDPath()));
-         stringList.push_back(scpdUrlPtr);
-         
-         nodeChild3 = xmlHelper.createNode("SCPDURL", scpdUrlPtr->c_str());
+
+         nodeChild3 = xmlHelper.createNode("SCPDURL", scpdUrl);
          xmlHelper.appendNode(nodeChild2, nodeChild3);
          xmlHelper.appendNode(nodeChild1, nodeChild2);
       }

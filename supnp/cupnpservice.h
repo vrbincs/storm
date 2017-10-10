@@ -22,13 +22,13 @@ public:
    inline void setType(const std::string &type) { m_type = type; }
    inline void setId(const std::string &id) { m_id = id; }
    inline void setSCPDPath(const std::string &path) { m_scpdPath = path; }
-   inline void setControlUrl(const std::string &url) { m_ctrlUrl = url; }
+   inline void setControlPath(const std::string &path) { m_ctrlPath = path; }
    inline void setEventUrl(const std::string &url) { m_eventUrl = url; }
    
    inline const char * getType() const { return m_type.data(); }
    inline const char * getId() const { return m_id.data(); }
    inline const char * getSCPDPath() const { return m_scpdPath.data(); }
-   inline const char * getControlUrl() const { return m_ctrlUrl.data(); }
+   inline const char * getControlPath() const { return m_ctrlPath.data(); }
    inline const char * getEventUrl() const { return m_eventUrl.data(); }
    const char *getScpd();
    
@@ -45,7 +45,7 @@ private:
    std::string m_type;
    std::string m_id;
    std::string m_scpdPath;
-   std::string m_ctrlUrl;
+   std::string m_ctrlPath;
    std::string m_eventUrl;
    std::string m_scpd;
    

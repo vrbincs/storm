@@ -17,6 +17,7 @@
 #define UPNP_MEDIA_SERVER_SERVICE_ID   "urn:upnp-org:serviceId:ContentDirectory"
 #define RESOURCE_MEDIA_SERVER_CDS_PATH STR(RESOURCE_PATH)"/resources/mediaServerCDS.xml"
 #define MEDIA_SERVER_CDS_PATH          "/service/mediaServerCDS.xml"
+#define MEDIA_SERVER_CDC_PATH          "/control/contentdirectory.xml"
 //#define RESOURCE_MEDIA_SERVER_ROOT STR(RESOURCE_PATH)"/resources/mediaServerRoot.xml"
 
 
@@ -100,7 +101,8 @@ void CMediaServerDelegate::registerServices()
    registerService(UPNP_MEDIA_SERVER_SERVICE_CDS,
                    UPNP_MEDIA_SERVER_SERVICE_ID,
                    MEDIA_SERVER_CDS_PATH,
-                   RESOURCE_MEDIA_SERVER_CDS_PATH);
+                   RESOURCE_MEDIA_SERVER_CDS_PATH,
+                   MEDIA_SERVER_CDC_PATH);
    //registerConnectionManager();
    //AVTransport();
 }
@@ -108,7 +110,8 @@ void CMediaServerDelegate::registerServices()
 bool CMediaServerDelegate::registerService(const std::string &type,
                                            const std::string &id,
                                            const std::string &scpdServerPath,
-                                           const std::string &descrXmlPath)
+                                           const std::string &descrXmlPath,
+                                           const std::string &controlPath)
 {
    std::string xmlContent;
    
@@ -123,6 +126,7 @@ bool CMediaServerDelegate::registerService(const std::string &type,
             service->setType(type);
             service->setId(id);
             service->setSCPDPath(scpdServerPath);
+            service->setControlPath(controlPath);
             
             return addService(service);
          }
